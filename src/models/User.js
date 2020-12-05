@@ -13,9 +13,10 @@ const userSchema = new mongoose.Schema({
   }
 });
 
-userSchema.pre('save',function(){ 
+userSchema.pre('save',function(next){ 
   // @ here we need keyword function its becouse of we need to use this keyword at here.
-  if (!userSchema.isModified('password')) {
+  const user = this;
+  if (!user.isModified('password')) {
      return  next(); 
   }
 
@@ -24,26 +25,28 @@ userSchema.pre('save',function(){
       return next(err);
     }
 
-    bcrypt.hash(user,password,salt,(err,hash)=>{
+    bcrypt.hash(user.password,salt,(err,hash)=>{
       if(err){
         return next(err);
       }
       user.password = hash;
-      next();
+      return next();
     });
   });
 });
 
-userSchema.methods.comparePassword = function (candidatePassword) {
-  const user = this;
+userSchema.methods.comparePassword = function (candidatePassword) {  
+
 return new Promise((resolve,reject) => {
-  bcrypt.compare(candidatePassword,user.password,(err,isMatch)=> {
+  bcrypt.compare(candidatePassword,this.password,(err,isMatch)=> {
     if(err) {
       return reject(err);
     }
+
     if(!isMatch) {
       return reject(false);
     }
+
     resolve(true);
   })
 })
