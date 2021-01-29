@@ -8,10 +8,15 @@ const router = express.Router();
 
 router.use(requireAuth);
 
-router.get('/tracks',async(req,res)=>{
-    const tracks = await Track.find({userId:req.user._id});
-    res.send(tracks);
+router.get('/track',async(req,res)=>{
+    const track = await Track.find({userId:req.user._id});
+    res.send(track);
 });
+
+router.get('/tracks',async(req,res)=>{
+    const tracks = await Track;
+    res.send(tracks);
+})
 
 router.post('/tracks',async(req,res)=>{
     const {name,locations} = req.body;
@@ -24,7 +29,7 @@ router.post('/tracks',async(req,res)=>{
         res.send(track);
     }catch(err){
          res.status(422).send({error:err.message});
-    }
+    } 
 })
 
 module.exports = router;
